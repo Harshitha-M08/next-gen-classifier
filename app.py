@@ -1,9 +1,6 @@
 import streamlit as st
 import joblib
 import numpy as np
-import pandas as pd
-import shap
-import matplotlib.pyplot as plt
 
 # Load model and scaler
 model = joblib.load('svm_model.pkl')
@@ -12,37 +9,21 @@ scaler = joblib.load('scaler.pkl')
 st.title("Next-Gen Tumor Classifier")
 st.write("Predict whether a tumor is malignant or benign.")
 
-# Input features: all 30 features from the dataset
-feature_names = [
-    'mean radius','mean texture','mean perimeter','mean area','mean smoothness',
-    'mean compactness','mean concavity','mean concave points','mean symmetry','mean fractal dimension',
-    'radius error','texture error','perimeter error','area error','smoothness error',
-    'compactness error','concavity error','concave points error','symmetry error','fractal dimension error',
-    'worst radius','worst texture','worst perimeter','worst area','worst smoothness',
-    'worst compactness','worst concavity','worst concave points','worst symmetry','worst fractal dimension'
-]
+# Input features
+def user_input_features():
+    mean_radius = st.number_input('Mean Radius', 0.0, 30.0, 14.0)
+    mean_texture = st.number_input('Mean Texture', 0.0, 40.0, 20.0)
+    mean_perimeter = st.number_input('Mean Perimeter', 0.0, 200.0, 90.0)
+    mean_area = st.number_input('Mean Area', 0.0, 2500.0, 600.0)
+    mean_smoothness = st.number_input('Mean Smoothness', 0.0, 1.0, 0.1)
+    # Add more features if needed
+    features = [mean_radius, mean_texture, mean_perimeter, mean_area, mean_smoothness]
+    return np.array(features).reshape(1, -1)
 
-# Create input form
-st.sidebar.header("Input Tumor Features")
-input_data = []
-for feature in feature_names:
-    val = st.sidebar.number_input(feature, 0.0, 1000.0, 0.0)
-    input_data.append(val)
+input_data = user_input_features()
+input_data_scaled = scaler.transform(input_data)
 
-input_array = np.array(input_data).reshape(1, -1)
-input_scaled = scaler.transform(input_array)
-
-# Prediction
 if st.button("Predict"):
-    prediction = model.predict(input_scaled)
+    prediction = model.predict(input_data_scaled)
     result = "Malignant (Cancerous)" if prediction[0] == 0 else "Benign (Non-Cancerous)"
     st.success(f"Prediction: {result}")
-
-    # SHAP Explainability
-    explainer = shap.Explainer(model, scaler.transform(scaler.inverse_transform(np.identity(len(feature_names)))))
-    shap_values = explainer(input_scaled)
-
-    st.subheader("Feature Importance (SHAP)")
-    fig, ax = plt.subplots(figsize=(8,6))
-    shap.plots.bar(shap_values, max_display=10, show=False)
-    st.pyplot(fig)
