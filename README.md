@@ -16,21 +16,13 @@ Interactive Streamlit UI with sidebar input
 Portfolio-ready and deployable on Hugging Face Spaces
 
 Tech Stack
-
 Python
-
 scikit-learn
-
 Streamlit
-
 SHAP
-
 Pandas & NumPy
-
 Joblib
-
 Usage
-
 Clone or download the repo.
 
 Install dependencies:
@@ -49,9 +41,13 @@ View prediction and SHAP feature importance.
 
 Repository Structure
 next-gen-classifier/
+
 ├─ app.py              # Streamlit application
+
 ├─ svm_model.pkl       # Trained SVM model
+
 ├─ scaler.pkl          # Feature scaler
+
 ├─ requirements.txt    # Required Python packages
 
 Future Enhancements
